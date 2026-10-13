@@ -1,0 +1,185 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-color: #F8F7F3;
+    --text-color: #1A1A19;
+    --border-color: #E4E2DA;
+    --accent-color: #F9BE08;
+    --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  body {
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+/* Subtle paper grain texture at 2% opacity only */
+.paper-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Registration marks / crosshairs at section corners only */
+.registration-mark {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  opacity: 0.35;
+}
+.registration-mark::before,
+.registration-mark::after {
+  content: '';
+  position: absolute;
+  background-color: #1A1A19;
+}
+.registration-mark::before {
+  top: 6px;
+  left: 0;
+  width: 14px;
+  height: 1px;
+}
+.registration-mark::after {
+  left: 6px;
+  top: 0;
+  width: 1px;
+  height: 14px;
+}
+
+/* Verification stamp styling */
+.stamp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px dashed #F9BE08;
+  padding: 3px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1A1A19;
+  background-color: rgba(249, 190, 8, 0.08);
+}
+
+/* Hand-drawn SVG stroke animation */
+@keyframes drawUnderline {
+  0% {
+    stroke-dashoffset: 260;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.draw-underline-path {
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: drawUnderline 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+}
+
+/* 3D tilt card effect utility */
+.evidence-card {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, box-shadow;
+}
+
+.evidence-card:hover {
+  transform: translateY(-4px) rotate3d(1, -1, 0, 1.5deg);
+  box-shadow: 0 16px 36px -8px rgba(26, 26, 25, 0.12), 0 1px 3px rgba(26, 26, 25, 0.04);
+}
+
+/* Floating chips slow drift */
+@keyframes driftChipA {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(-1deg); }
+}
+
+@keyframes driftChipB {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(7px) rotate(1.5deg); }
+}
+
+.animate-drift-a {
+  animation: driftChipA 5s ease-in-out infinite;
+}
+
+.animate-drift-b {
+  animation: driftChipB 6s ease-in-out infinite;
+}
+
+/* Custom yellow cursor */
+@media (pointer: fine) {
+  .cursor-dot {
+    pointer-events: none;
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background-color: #F9BE08;
+    border-radius: 50%;
+    z-index: 10000;
+    transform: translate(-50%, -50%);
+    transition: transform 0.08s ease-out, opacity 0.2s ease;
+    mix-blend-mode: multiply;
+  }
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Check circle draw animation for ThankYouView */
+@keyframes drawCircle {
+  from { stroke-dashoffset: 282; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes drawCheck {
+  from { stroke-dashoffset: 48; }
+  to   { stroke-dashoffset: 0; }
+}
+.draw-circle {
+  stroke-dasharray: 282;
+  stroke-dashoffset: 282;
+  animation: drawCircle 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+}
+.draw-check {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: drawCheck 0.35s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards;
+}
+
+/* Ticket perforation edge */
+.ticket-perf {
+  background-image: radial-gradient(circle, #E4E2DA 4px, transparent 4px);
+  background-size: 14px 14px;
+  background-repeat: repeat-x;
+}
+
+/* Stamp animation for ticket card */
+@keyframes stampIn {
+  0%   { opacity: 0; transform: scale(1.15) rotate(-2deg); }
+  60%  { opacity: 1; transform: scale(0.97) rotate(0.5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.animate-stamp {
+  animation: stampIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
