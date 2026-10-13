@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { SurveySubmissionData, WaitlistSubmissionData, AnalyticsRecord } from '../types';
+import { SurveySubmissionData, WaitlistSubmissionData, AnalyticsRecord, JobSeekerAnswers, RecruiterAnswers } from '../types';
 import { INITIAL_SURVEY_RESPONSES, INITIAL_WAITLIST, INITIAL_ANALYTICS } from './mockData';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -295,9 +295,9 @@ function normalizeSurveyRecord(row: any): SurveySubmissionData {
     full_name: cleanMojibake(row.full_name || row.name || 'Anonymous'),
     email: row.email || '',
     recruiter_position: row.recruiter_position ? cleanMojibake(row.recruiter_position) : (row.position ? cleanMojibake(row.position) : undefined),
-    answers: sanitizedAnswers,
+    answers: sanitizedAnswers as unknown as (JobSeekerAnswers | RecruiterAnswers),
     marketing_consent: Boolean(row.marketing_consent ?? row.consent ?? true),
-    file_number: row.file_number || undefined,
+    file_number: row.file_number || '',
     created_at: row.created_at || new Date().toISOString()
   };
 }
