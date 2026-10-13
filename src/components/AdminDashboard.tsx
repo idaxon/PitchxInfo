@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   ArrowLeft,
   Download,
-  Lock,
   LogOut,
   Users,
   Briefcase,
@@ -46,7 +45,7 @@ interface AdminDashboardProps {
   onBack: () => void;
 }
 
-const DEFAULT_PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || 'pitchx-admin-2026';
+
 
 // Human-readable label maps for each question key
 const JOB_SEEKER_LABELS: Record<string, string> = {
@@ -353,9 +352,7 @@ function LabBarChart({
 }
 
 export default function AdminDashboard({ onBack }: AdminDashboardProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [passcode, setPasscode] = useState<string>('');
-  const [passcodeError, setPasscodeError] = useState<string>('');
+  const [isAuthenticated] = useState<boolean>(true);
 
   const [surveys, setSurveys] = useState<SurveySubmissionData[]>([]);
   const [waitlist, setWaitlist] = useState<WaitlistSubmissionData[]>([]);
@@ -378,11 +375,6 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
   // Visual Labs state
   const [visuCohort, setVisuCohort] = useState<'all' | 'job_seeker' | 'recruiter'>('all');
 
-  useEffect(() => {
-    const sessionAuth = sessionStorage.getItem('pitchx_admin_authenticated');
-    if (sessionAuth === 'true') setIsAuthenticated(true);
-  }, []);
-
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -403,22 +395,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
     if (isAuthenticated) fetchData();
   }, [isAuthenticated]);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (passcode.trim() === DEFAULT_PASSCODE || passcode.trim() === 'admin') {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('pitchx_admin_authenticated', 'true');
-      setPasscodeError('');
-    } else {
-      setPasscodeError('Incorrect passcode. Try again.');
-    }
-  };
-
   const handleLogout = () => {
-    sessionStorage.removeItem('pitchx_admin_authenticated');
-    setIsAuthenticated(false);
-    setPasscode('');
-    setPasscodeError('');
     setSurveys([]);
     setWaitlist([]);
     setAnalytics([]);
@@ -699,63 +676,6 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
     a.click();
     document.body.removeChild(a);
   };
-
-  // ── Login wall ────────────────────────────────────────────────────────────
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-[#F8F7F3] flex items-center justify-center p-6">
-        <div className="w-full max-w-sm rounded-2xl border border-[#E4E2DA] bg-white p-8 shadow-[0_8px_32px_rgba(26,26,25,0.08)] space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#1A1A19] flex items-center justify-center">
-              <Lock className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <h2 className="font-display text-lg font-semibold text-[#1A1A19] leading-tight">PitchX Admin</h2>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[#9E9D95]">Passcode required</p>
-            </div>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="block font-mono text-[11px] uppercase tracking-wider text-[#6B6A63] font-semibold">
-                Passcode
-              </label>
-              <input
-                type="password"
-                value={passcode}
-                onChange={e => setPasscode(e.target.value)}
-                placeholder="Enter admin passcode"
-                autoFocus
-                className="w-full px-4 py-3 rounded-xl border border-[#E4E2DA] bg-[#F8F7F3] font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[#F9BE08] focus:border-[#F9BE08] transition"
-              />
-              {passcodeError && (
-                <p className="font-mono text-[11px] text-red-600">{passcodeError}</p>
-              )}
-              <p className="font-mono text-[10px] text-[#B4B2AB]">
-                Default key: <code className="bg-[#F3F1EA] px-1.5 py-0.5 rounded text-[#1A1A19] font-bold">pitchx-admin-2026</code>
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={onBack}
-                className="flex-1 py-2.5 rounded-xl border border-[#E4E2DA] font-mono text-xs uppercase tracking-wider text-[#6B6A63] hover:bg-[#F3F1EA] transition"
-              >
-                ← Back
-              </button>
-              <button
-                type="submit"
-                className="flex-1 py-2.5 rounded-xl bg-[#1A1A19] text-white font-mono text-xs uppercase tracking-wider font-semibold hover:bg-[#F9BE08] hover:text-[#1A1A19] transition"
-              >
-                Enter
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
 
   // ── Main dashboard ────────────────────────────────────────────────────────
   return (
