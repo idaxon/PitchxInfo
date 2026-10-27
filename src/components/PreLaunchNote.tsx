@@ -67,87 +67,51 @@ export default function PreLaunchNote() {
   return (
     <div
       ref={wrapRef}
-      className="relative inline-flex items-center gap-2 select-text"
+      className="relative inline-flex flex-col items-start select-text mb-1"
       style={{ willChange: 'opacity, transform' }}
     >
       {/* ── Handwritten text ─────────────────────────────────────────────── */}
       <span
-        className="relative inline-block leading-snug"
+        className="relative inline-block leading-[1.15] select-none text-[#1A1A19]/85 font-hand"
         style={{
           fontFamily: "'Caveat', cursive",
-          fontSize: 'clamp(18px, 2.2vw, 22px)',
-          fontWeight: 500,
-          color: 'rgba(26,26,25,0.80)',
-          transform: 'rotate(-3deg)',
+          fontSize: 'clamp(17px, 2vw, 20px)',
+          fontWeight: 600,
+          transform: 'rotate(-3.5deg)',
           transformOrigin: 'left center',
           letterSpacing: '0.01em',
         }}
       >
-        Pre-launch. We&#39;re{' '}
-        {/* "listening" gets the highlighter layered under it */}
-        <span className="relative inline-block whitespace-nowrap">
-          listening.
-          {/* ── Yellow highlighter stroke (behind text) ────────────────── */}
-          <svg
-            aria-hidden="true"
-            focusable="false"
-            className="absolute pointer-events-none"
-            style={{
-              left: '-2px',
-              bottom: '-1px',
-              width: 'calc(100% + 4px)',
-              height: '12px',
-              overflow: 'visible',
-            }}
-            viewBox="0 0 90 12"
-            fill="none"
-            preserveAspectRatio="none"
-          >
-            <path
-              ref={hlRef}
-              d="M1 8.5 C12 5.5, 24 10, 38 7.5 C52 5, 65 9, 78 6.5 C84 5, 88.5 7.5, 89.5 8.5"
-              stroke="#F9BE08"
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity="0.40"
-              style={{
-                strokeDasharray: 112,
-                strokeDashoffset: 112,
-              }}
-            />
-          </svg>
-        </span>
+        Same skills.<br />
+        Different way<br />
+        to get noticed.
       </span>
 
-      {/* ── Curved arrow (hidden on mobile) ──────────────────────────────── */}
+      {/* ── Curved arrow pointing down toward headline ───────────────────── */}
       <svg
         aria-hidden="true"
         focusable="false"
-        className="hidden sm:block shrink-0 pointer-events-none"
-        style={{ transform: 'translateY(4px)', marginLeft: '-2px' }}
-        width="38"
-        height="34"
-        viewBox="0 0 38 34"
+        className="pointer-events-none mt-0.5 ml-6"
+        width="34"
+        height="28"
+        viewBox="0 0 44 38"
         fill="none"
       >
-        {/* Main arc — gently imperfect bezier */}
         <path
           ref={arrowRef}
-          d="M4 3 C8 13, 20 20, 30 28"
-          stroke="rgba(26,26,25,0.50)"
-          strokeWidth="1.5"
+          d="M6 4 C12 15, 22 24, 34 32"
+          stroke="rgba(26,26,25,0.65)"
+          strokeWidth="1.8"
           strokeLinecap="round"
-          style={{ strokeDasharray: 44, strokeDashoffset: 44 }}
+          style={{ strokeDasharray: 50, strokeDashoffset: 50 }}
         />
-        {/* Arrowhead — two short strokes at the tip */}
         <path
           ref={arrowHRef}
-          d="M30 28 L22 25 M30 28 L27 20"
-          stroke="rgba(26,26,25,0.50)"
-          strokeWidth="1.5"
+          d="M34 32 L25 30 M34 32 L32 22"
+          stroke="rgba(26,26,25,0.65)"
+          strokeWidth="1.8"
           strokeLinecap="round"
-          style={{ strokeDasharray: 14, strokeDashoffset: 14 }}
+          style={{ strokeDasharray: 16, strokeDashoffset: 16 }}
         />
       </svg>
     </div>

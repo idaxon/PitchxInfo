@@ -8,6 +8,7 @@ import Footer from './components/Footer';
 import SurveyView from './components/SurveyView';
 import ThankYouView from './components/ThankYouView';
 import AdminDashboard from './components/AdminDashboard';
+import AdminLogin, { isAdminAuthenticated, clearAdminSession } from './components/AdminLogin';
 import NotFound from './components/NotFound';
 import WaitlistModal from './components/WaitlistModal';
 import CustomCursor from './components/CustomCursor';
@@ -31,6 +32,7 @@ export default function App() {
   const [selectedType, setSelectedType] = useState<RespondentType>('job_seeker');
   const [lastSubmission, setLastSubmission] = useState<SurveySubmissionData | null>(null);
   const [waitlistOpen, setWaitlistOpen] = useState<boolean>(false);
+  const [adminAuthed, setAdminAuthed] = useState<boolean>(isAdminAuthenticated());
 
   // Initial landing page visit tracking
   useEffect(() => {
@@ -85,6 +87,13 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleAdminLogout = () => {
+    clearAdminSession();
+    setAdminAuthed(false);
+    setCurrentView('admin');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground relative selection:bg-accent selection:text-foreground">
       
@@ -114,9 +123,17 @@ export default function App() {
 
       {/* VIEW: ADMIN TELEMETRY DASHBOARD */}
       {currentView === 'admin' && (
-        <AdminDashboard
-          onBack={handleReturnHome}
-        />
+        adminAuthed ? (
+          <AdminDashboard
+            onBack={handleReturnHome}
+            onLogout={handleAdminLogout}
+          />
+        ) : (
+          <AdminLogin
+            onAuthenticated={() => setAdminAuthed(true)}
+            onBack={handleReturnHome}
+          />
+        )
       )}
 
       {/* VIEW: 404 NOT FOUND CASE FILE */}

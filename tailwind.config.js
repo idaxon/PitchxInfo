@@ -35,6 +35,7 @@ export default {
         display: ['Fraunces', 'Instrument Serif', 'Georgia', 'serif'],
         sans: ['Geist', 'Satoshi', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
+        hand: ['Caveat', 'cursive'],
       },
       boxShadow: {
         'evidence': '0 1px 3px rgba(26,26,25,0.04), 0 4px 12px rgba(26,26,25,0.06)',

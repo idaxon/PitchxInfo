@@ -85,79 +85,137 @@ const COMPARISON_ROWS = [
 
 export default function Hero({ onSelectType }: HeroProps) {
   return (
-    <section className="relative pt-[72px] lg:pt-[120px] pb-16 lg:pb-24 overflow-hidden border-b border-[#E4E2DA]">
+    <section className="relative pt-[88px] sm:pt-20 lg:pt-24 pb-12 lg:pb-16 overflow-hidden border-b border-[#E4E2DA]">
       {/* Registration Marks at section corners only */}
-      <div className="registration-mark top-6 left-6" />
-      <div className="registration-mark top-6 right-6" />
-      <div className="registration-mark bottom-6 left-6" />
-      <div className="registration-mark bottom-6 right-6" />
+      <div className="registration-mark top-4 left-4" />
+      <div className="registration-mark top-4 right-4" />
+      <div className="registration-mark bottom-4 left-4" />
+      <div className="registration-mark bottom-4 right-4" />
 
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+      <div className="max-w-7xl mx-auto px-4 xs:px-5 sm:px-8">
         
-        {/* 12-Column Hero Grid: Left 5 cols text, Right 7 cols visual bleeding off right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        {/* 12-Column Hero Grid: Left 5 cols text, Right 7 cols visual */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
           
           {/* Left Column (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-3.5 lg:space-y-3.5">
             
-            {/* Handwritten margin-note: "Pre-launch. We're listening." */}
-            <div className="mb-4">
+            {/* Handwritten margin-note: "Same skills. Different way to get noticed." */}
+            <div>
               <PreLaunchNote />
             </div>
 
-            {/* Headline: "Build. Prove. Get Hired." Serif display, 88-104px desktop, tight leading */}
-            <h1 className="font-display text-5xl sm:text-7xl lg:text-[5.5rem] xl:text-[6.25rem] font-medium leading-[0.98] tracking-tight text-foreground">
-              Build. Prove. <br />
-              <span className="relative inline-block italic font-normal text-foreground">
-                Get Hired.
-                {/* Hand-drawn yellow underline stroke that draws in on load */}
-                <svg
-                  className="absolute -bottom-2 left-0 w-full h-3 overflow-visible pointer-events-none"
-                  viewBox="0 0 240 12"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M3 8.5C65 3.5 175 2.5 237 8"
-                    stroke="#F9BE08"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    className="draw-underline-path"
-                  />
-                </svg>
-              </span>
-            </h1>
+            {/* Headline Card: "Build. Prove. Get Hired." with yellow highlighter and doodle rays */}
+            <div className="relative inline-block w-full sm:w-auto">
+              <div className="relative rounded-2xl bg-[#FFFDF8] border border-[#E4E2DA] p-4 sm:p-5 lg:p-5 shadow-[0_10px_28px_rgba(26,26,25,0.06)]">
+                <h1 className="font-display text-[2.2rem] xs:text-[2.6rem] sm:text-5xl lg:text-[3.5rem] xl:text-[3.9rem] font-bold leading-[1.04] sm:leading-[0.98] tracking-tight text-foreground">
+                  Build.<br />
+                  Prove.<br />
+                  <span className="relative inline-block mt-0.5">
+                    {/* Yellow highlighter brush stroke */}
+                    <span
+                      className="absolute inset-x-0 bottom-1 sm:bottom-1.5 h-6 sm:h-9 bg-[#F9BE08] rounded-xs -z-10 shadow-xs"
+                      style={{
+                        transform: 'rotate(-1.5deg) scaleX(1.04)',
+                        clipPath: 'polygon(1% 4%, 99% 0%, 98% 96%, 0% 100%)',
+                      }}
+                    />
+                    <span className="relative z-10 px-1 italic">
+                      Get Hired.
+                    </span>
+                  </span>
+                </h1>
 
-            {/* Subheadline: Exact spec copy, 18px, max 52ch */}
-            <p className="font-sans text-[18px] text-muted leading-relaxed max-w-[52ch] pt-1">
+                {/* Sunburst Doodle rays on right edge */}
+                <div className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 pointer-events-none hidden xs:block sm:block">
+                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+                    <path d="M8 16 L2 16" stroke="#F9BE08" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M10 8 L4 3" stroke="#F9BE08" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M16 8 L16 2" stroke="#1A1A19" strokeWidth="2.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Subheadline */}
+            <p className="font-sans text-[13.5px] sm:text-[15px] text-muted leading-relaxed max-w-[46ch] pt-0.5">
               PitchX validates candidate skills through proof of work, GitHub repositories, verified assessments, and an objective Proof Score.
             </p>
 
-            {/* Buttons: "I'm a Job Seeker" (black, arrow) & "I'm a Recruiter" (outline -> yellow fill on hover) */}
-            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              <MagneticButton
-                onClick={() => onSelectType('job_seeker')}
-                className="group relative inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-full bg-foreground text-background font-medium text-sm hover:bg-[#2C2C2A] transition-all shadow-sm active:scale-95"
-              >
-                <span>I'm a Job Seeker</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </MagneticButton>
+            {/* Buttons: "I'm a Job Seeker" & "I'm a Recruiter" with doodle dashes */}
+            <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="relative flex items-center w-full sm:w-auto">
+                {/* 3 radiating doodle marks on left */}
+                <div className="hidden sm:block absolute -left-5 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg width="18" height="20" viewBox="0 0 20 24" fill="none">
+                    <path d="M14 6 L4 3" stroke="#1A1A19" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M14 12 L2 12" stroke="#1A1A19" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M14 18 L4 21" stroke="#1A1A19" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </div>
+
+                <MagneticButton
+                  onClick={() => onSelectType('job_seeker')}
+                  className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 sm:px-6 rounded-full bg-foreground text-background font-medium text-xs sm:text-sm hover:bg-[#2C2C2A] transition-all shadow-sm active:scale-95"
+                >
+                  <span>I'm a Job Seeker</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </MagneticButton>
+              </div>
 
               <MagneticButton
                 onClick={() => onSelectType('recruiter')}
-                className="group relative inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-full border border-foreground bg-transparent text-foreground font-medium text-sm hover:bg-accent hover:border-accent hover:text-foreground transition-all duration-200 active:scale-95"
+                className="w-full sm:w-auto group relative inline-flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 sm:px-6 rounded-full border border-foreground bg-white text-foreground font-medium text-xs sm:text-sm hover:bg-accent hover:border-accent hover:text-foreground transition-all duration-200 active:scale-95 shadow-sm"
               >
                 <span>I'm a Recruiter</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </MagneticButton>
             </div>
 
-            {/* Prototype paper-slip note */}
-            <PrototypeNote onFeedbackClick={() => onSelectType('job_seeker')} />
+            {/* Social Proof Row: 4 Avatars + Handwritten note */}
+            <div className="pt-0.5 flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+              <div className="flex -space-x-2 overflow-hidden shrink-0">
+                <img
+                  className="inline-block h-7 w-7 rounded-full ring-2 ring-white object-cover"
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80"
+                  alt="Candidate"
+                />
+                <img
+                  className="inline-block h-7 w-7 rounded-full ring-2 ring-white object-cover"
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&h=80&q=80"
+                  alt="Candidate"
+                />
+                <img
+                  className="inline-block h-7 w-7 rounded-full ring-2 ring-white object-cover"
+                  src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=80&h=80&q=80"
+                  alt="Candidate"
+                />
+                <img
+                  className="inline-block h-7 w-7 rounded-full ring-2 ring-white object-cover"
+                  src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=80&h=80&q=80"
+                  alt="Candidate"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <svg width="24" height="18" viewBox="0 0 28 22" fill="none" className="text-[#1A1A19]/70 shrink-0">
+                  <path d="M4 14 C12 6, 20 8, 24 16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  <path d="M4 14 L8 8 M4 14 L10 16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+                <span className="font-hand text-[15.5px] font-semibold text-[#1A1A19]/80 leading-tight select-none">
+                  Join early.<br />Be part of a fairer hiring future.
+                </span>
+              </div>
+            </div>
+
+            {/* Prototype paper-slip note: compact & styled */}
+            <div className="pt-1">
+              <PrototypeNote onFeedbackClick={() => onSelectType('job_seeker')} />
+            </div>
 
           </div>
 
-          {/* Right Column (7 cols): Layered CSS 3D composition bleeding off right */}
+          {/* Right Column (7 cols): Layered visual composition */}
           <div className="lg:col-span-7 flex justify-center lg:justify-end relative">
             <HeroVisual />
           </div>
@@ -230,9 +288,14 @@ export default function Hero({ onSelectType }: HeroProps) {
                     <span className="font-mono text-[11px] text-muted-light font-medium pt-0.5 shrink-0">
                       0{index + 1}.
                     </span>
-                    <span className="font-sans text-sm sm:text-[15px] text-muted leading-relaxed">
-                      {row.traditional}
-                    </span>
+                    <div className="flex-1 min-w-0">
+                      <span className="md:hidden inline-flex items-center gap-1 text-[9.5px] font-mono uppercase px-2 py-0.5 rounded-full bg-red-100/80 text-red-800 font-bold mb-1.5">
+                        <X className="w-2.5 h-2.5" /> Traditional Resume
+                      </span>
+                      <p className="font-sans text-sm sm:text-[15px] text-muted leading-relaxed">
+                        {row.traditional}
+                      </p>
+                    </div>
                   </div>
 
                   {/* PitchX Side */}
@@ -240,9 +303,14 @@ export default function Hero({ onSelectType }: HeroProps) {
                     <div className="w-4 h-4 rounded-full bg-accent/25 flex items-center justify-center text-foreground shrink-0 mt-0.5">
                       <Check className="w-2.5 h-2.5 font-bold" />
                     </div>
-                    <span className="font-sans text-sm sm:text-[15px] text-foreground font-semibold leading-relaxed">
-                      {row.pitchx}
-                    </span>
+                    <div className="flex-1 min-w-0">
+                      <span className="md:hidden inline-flex items-center gap-1 text-[9.5px] font-mono uppercase px-2 py-0.5 rounded-full bg-accent/30 text-foreground font-bold mb-1.5">
+                        <Check className="w-2.5 h-2.5" /> PitchX Verified Proof
+                      </span>
+                      <p className="font-sans text-sm sm:text-[15px] text-foreground font-semibold leading-relaxed">
+                        {row.pitchx}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))}

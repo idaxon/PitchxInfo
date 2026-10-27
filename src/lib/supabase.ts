@@ -2,18 +2,104 @@ import { createClient } from '@supabase/supabase-js';
 import { SurveySubmissionData, WaitlistSubmissionData, AnalyticsRecord, JobSeekerAnswers, RecruiterAnswers } from '../types';
 import { INITIAL_SURVEY_RESPONSES, INITIAL_WAITLIST, INITIAL_ANALYTICS } from './mockData';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+// Supabase Configuration Helper: Supports both Vite .env and runtime localStorage
+export function getActiveSupabaseConfig(): { url: string; key: string; isConfigured: boolean } {
+  const localUrl = typeof window !== 'undefined' ? localStorage.getItem('pitchx_supabase_url') : null;
+  const localKey = typeof window !== 'undefined' ? localStorage.getItem('pitchx_supabase_anon_key') : null;
 
-export const isSupabaseConfigured = Boolean(
-  supabaseUrl && 
-  supabaseAnonKey && 
-  supabaseUrl !== 'https://your-project-id.supabase.co'
-);
+  const url = (localUrl && localUrl.trim()) || 
+              import.meta.env.VITE_SUPABASE_URL || 
+              import.meta.env.NEXT_PUBLIC_SUPABASE_URL || 
+              '';
+  const key = (localKey && localKey.trim()) || 
+              import.meta.env.VITE_SUPABASE_ANON_KEY || 
+              import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 
+              '';
 
-export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+  const isConfigured = Boolean(
+    url && 
+    key && 
+    url !== 'https://your-project-id.supabase.co' &&
+    key !== 'your-supabase-anon-key-here'
+  );
+
+  return { url, key, isConfigured };
+}
+
+let _clientInstance: any = null;
+let _lastUrl = '';
+let _lastKey = '';
+
+export function getSupabase(): any {
+  const { url, key, isConfigured } = getActiveSupabaseConfig();
+  if (!isConfigured) return null;
+  if (_clientInstance && _lastUrl === url && _lastKey === key) {
+    return _clientInstance;
+  }
+  try {
+    _lastUrl = url;
+    _lastKey = key;
+    _clientInstance = createClient(url, key);
+    return _clientInstance;
+  } catch (err) {
+    console.error('Failed to create Supabase client:', err);
+    return null;
+  }
+}
+
+export const isSupabaseConfigured = getActiveSupabaseConfig().isConfigured;
+
+export function checkIsSupabaseConfigured(): boolean {
+  return getActiveSupabaseConfig().isConfigured;
+}
+
+export function saveSupabaseCredentials(url: string, key: string): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('pitchx_supabase_url', url.trim());
+    localStorage.setItem('pitchx_supabase_anon_key', key.trim());
+    _clientInstance = null;
+  }
+}
+
+export function clearSupabaseCredentials(): void {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('pitchx_supabase_url');
+    localStorage.removeItem('pitchx_supabase_anon_key');
+    _clientInstance = null;
+  }
+}
+
+export async function testSupabaseConnection(customUrl?: string, customKey?: string): Promise<{ success: boolean; message: string; rowsCount?: number }> {
+  try {
+    const config = getActiveSupabaseConfig();
+    const url = (customUrl !== undefined ? customUrl : config.url).trim();
+    const key = (customKey !== undefined ? customKey : config.key).trim();
+    if (!url || !key) {
+      return { success: false, message: 'Both Supabase Project URL and Anon Key are required.' };
+    }
+    const testClient = createClient(url, key);
+    const { data, error } = await testClient.from('survey_responses').select('id').limit(1);
+    if (error) {
+      if (error.code === '42P01') {
+        return { success: false, message: 'Table "survey_responses" does not exist yet. Please run the schema.sql in Supabase SQL Editor.' };
+      }
+      return { success: false, message: `Supabase Error: ${error.message}` };
+    }
+    return { success: true, message: 'Connected successfully to Supabase!', rowsCount: data?.length || 0 };
+  } catch (err: any) {
+    return { success: false, message: err?.message || 'Connection failed. Please check the URL and Key.' };
+  }
+}
+
+// Export dynamic client proxy so any direct `supabase.from()` calls always use active client
+export const supabase = new Proxy({}, {
+  get(_target, prop) {
+    const client = getSupabase();
+    if (!client) return undefined;
+    const value = client[prop];
+    return typeof value === 'function' ? value.bind(client) : value;
+  }
+}) as any;
 
 // LocalStorage keys for graceful offline/pre-setup operation
 const STORAGE_KEYS = {
@@ -62,7 +148,8 @@ export async function submitSurveyResponse(data: Omit<SurveySubmissionData, 'id'
   };
 
   try {
-    if (isSupabaseConfigured && supabase) {
+    const client = getSupabase();
+    if (client) {
       const ans: any = data.answers || {};
       const fullPayload: any = {
         respondent_type: data.respondent_type,
@@ -153,7 +240,8 @@ export async function submitWaitlistSignup(email: string, respondentType: 'job_s
   };
 
   try {
-    if (isSupabaseConfigured && supabase) {
+    const client = getSupabase();
+    if (client) {
       await supabase.from('waitlist_signups').insert([{
         email,
         respondent_type: respondentType,
@@ -186,7 +274,8 @@ export async function recordAnalytics(record: AnalyticsRecord): Promise<void> {
   };
 
   try {
-    if (isSupabaseConfigured && supabase) {
+    const client = getSupabase();
+    if (client) {
       supabase.from('analytics_events').insert([{
         event_name: eventWithMeta.event_name,
         respondent_type: eventWithMeta.respondent_type || null,
@@ -321,9 +410,10 @@ export async function getAdminData(): Promise<AdminDataResult> {
   let supabaseCount = 0;
 
   // Try Supabase first if available
-  if (isSupabaseConfigured && supabase) {
+  const client = getSupabase();
+  if (client) {
     try {
-      const { data: sData, error: sErr } = await supabase
+      const { data: sData, error: sErr } = await client
         .from('survey_responses')
         .select('*')
         .order('created_at', { ascending: false });
@@ -339,7 +429,7 @@ export async function getAdminData(): Promise<AdminDataResult> {
         }
       }
 
-      const { data: wData, error: wErr } = await supabase
+      const { data: wData, error: wErr } = await client
         .from('waitlist_signups')
         .select('*')
         .order('created_at', { ascending: false });
@@ -350,7 +440,7 @@ export async function getAdminData(): Promise<AdminDataResult> {
         waitlist = wData;
       }
 
-      const { data: aData } = await supabase
+      const { data: aData } = await client
         .from('analytics_events')
         .select('*')
         .order('created_at', { ascending: false });

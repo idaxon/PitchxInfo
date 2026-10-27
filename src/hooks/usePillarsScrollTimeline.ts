@@ -22,9 +22,9 @@ export function usePillarsScrollTimeline(containerRef: RefObject<HTMLDivElement 
 
   useEffect(() => {
     const unsubscribe = smoothProgress.on('change', (latest) => {
-      if (latest < 0.40) {
+      if (latest < 0.45) {
         setActiveStep(1);
-      } else if (latest < 0.70) {
+      } else if (latest < 0.75) {
         setActiveStep(2);
       } else {
         setActiveStep(3);
@@ -34,135 +34,135 @@ export function usePillarsScrollTimeline(containerRef: RefObject<HTMLDivElement 
   }, [smoothProgress]);
 
   // Indicator progress bar (0% -> 100%)
-  const indicatorLineHeight = useTransform(smoothProgress, [0.10, 0.95], ['0%', '100%']);
+  const indicatorLineHeight = useTransform(smoothProgress, [0.05, 0.98], ['0%', '100%']);
 
   // ==========================================
-  // CARD 1: Proof of Work
+  // CARD 1: Proof of Work — visible 0.05→0.45
   // ==========================================
   const card1Opacity = useTransform(
     smoothProgress,
-    [0.05, 0.12, 0.38, 0.42, 0.65, 0.70, 0.95],
-    [0, 1, 1, 1, 0.70, 0.70, 0.45]
+    [0.05, 0.12, 0.42, 0.48, 0.72, 0.78, 0.98],
+    [0,    1,    1,    1,    0.65, 0.65, 0.40]
   );
 
   const card1Z = useTransform(
     smoothProgress,
-    [0.05, 0.35, 0.40, 0.65, 0.70, 0.95],
-    [-400, 0, 0, -120, -120, -240]
+    [0.05, 0.40, 0.46, 0.72, 0.78, 0.98],
+    [-400, 0,   0,   -120, -120, -240]
   );
 
   const card1X = useTransform(
     smoothProgress,
-    [0.05, 0.35, 0.40, 0.65, 0.70, 0.95],
-    [0, 0, 0, -40, -40, -80]
+    [0.05, 0.40, 0.46, 0.72, 0.78, 0.98],
+    [0,    0,   0,   -40,  -40,  -80]
   );
 
   const card1Y = useTransform(
     smoothProgress,
-    [0.05, 0.35, 0.40, 0.65, 0.70, 0.95],
-    [0, 0, 0, -24, -24, -48]
+    [0.05, 0.40, 0.46, 0.72, 0.78, 0.98],
+    [0,    0,   0,   -24,  -24,  -48]
   );
 
   const card1RotateY = useTransform(
     smoothProgress,
-    [0.05, 0.35, 0.40, 0.95],
-    [-18, -6, -6, -6]
+    [0.05, 0.40, 0.46, 0.98],
+    [-18,  -6,  -6,  -6]
   );
 
   const card1Scale = useTransform(
     smoothProgress,
-    [0.05, 0.35, 0.40, 0.65, 0.70, 0.95],
-    [0.94, 1, 1, 0.92, 0.92, 0.85]
+    [0.05, 0.40, 0.46, 0.72, 0.78, 0.98],
+    [0.94, 1,   1,   0.92, 0.92, 0.85]
   );
 
   // Card 1 mini UI progress bar (98.4%)
   const card1BarWidth = useTransform(
     smoothProgress,
-    [0.15, 0.35],
+    [0.10, 0.38],
     ['0%', '98.4%']
   );
 
   // ==========================================
-  // CARD 2: Verified Skills & Proof Score
+  // CARD 2: Verified Skills & Proof Score — visible 0.42→0.78
   // ==========================================
   const card2Opacity = useTransform(
     smoothProgress,
-    [0.35, 0.42, 0.65, 0.70, 0.95],
-    [0, 1, 1, 0.70, 0.70]
+    [0.40, 0.47, 0.72, 0.78, 0.98],
+    [0,   1,   1,   0.65, 0.65]
   );
 
   const card2Z = useTransform(
     smoothProgress,
-    [0.38, 0.65, 0.70, 0.95],
-    [-400, 0, -120, -120]
+    [0.42, 0.70, 0.76, 0.98],
+    [-400, 0,   -120, -120]
   );
 
   const card2X = useTransform(
     smoothProgress,
-    [0.38, 0.65, 0.70, 0.95],
-    [0, 0, -40, -40]
+    [0.42, 0.70, 0.76, 0.98],
+    [0,   0,   -40,  -40]
   );
 
   const card2Y = useTransform(
     smoothProgress,
-    [0.38, 0.65, 0.70, 0.95],
-    [0, 0, -24, -24]
+    [0.42, 0.70, 0.76, 0.98],
+    [0,   0,   -24,  -24]
   );
 
   const card2RotateY = useTransform(
     smoothProgress,
-    [0.38, 0.65, 0.70, 0.95],
-    [-18, -6, -6, -6]
+    [0.42, 0.70, 0.76, 0.98],
+    [-18,  -6,  -6,  -6]
   );
 
   const card2Scale = useTransform(
     smoothProgress,
-    [0.38, 0.65, 0.70, 0.95],
-    [0.94, 1, 0.92, 0.92]
+    [0.42, 0.70, 0.76, 0.98],
+    [0.94, 1,   0.92, 0.92]
   );
 
   // Card 2 mini UI progress bars
-  const card2Bar1Width = useTransform(smoothProgress, [0.42, 0.58], ['0%', '92%']);
-  const card2Bar2Width = useTransform(smoothProgress, [0.46, 0.62], ['0%', '88%']);
-  const card2Bar3Width = useTransform(smoothProgress, [0.50, 0.65], ['0%', '85%']);
+  const card2Bar1Width = useTransform(smoothProgress, [0.48, 0.60], ['0%', '92%']);
+  const card2Bar2Width = useTransform(smoothProgress, [0.52, 0.64], ['0%', '88%']);
+  const card2Bar3Width = useTransform(smoothProgress, [0.56, 0.68], ['0%', '85%']);
 
   // ==========================================
-  // CARD 3: Smarter Recruiter Filtering
+  // CARD 3: Smarter Recruiter Filtering — visible 0.74→1.0
   // ==========================================
   const card3Opacity = useTransform(
     smoothProgress,
-    [0.68, 0.74, 1.0],
-    [0, 1, 1]
+    [0.72, 0.80, 1.0],
+    [0,   1,   1]
   );
 
   const card3Z = useTransform(
     smoothProgress,
-    [0.68, 0.95, 1.0],
-    [-400, 0, 0]
+    [0.72, 0.92, 1.0],
+    [-400, 0,   0]
   );
 
   const card3X = useTransform(
     smoothProgress,
-    [0.68, 0.95, 1.0],
-    [0, 0, 0]
+    [0.72, 0.92, 1.0],
+    [0,   0,   0]
   );
 
   const card3Y = useTransform(
     smoothProgress,
-    [0.68, 0.95, 1.0],
-    [0, 0, 0]
+    [0.72, 0.92, 1.0],
+    [0,   0,   0]
   );
 
   const card3RotateY = useTransform(
     smoothProgress,
-    [0.68, 0.95, 1.0],
-    [-18, -6, -6]
+    [0.72, 0.92, 1.0],
+    [-18,  -6,  -6]
   );
 
   const card3Scale = useTransform(
     smoothProgress,
-    [0.68, 0.95, 1.0],
-    [0.94, 1, 1]
+    [0.72, 0.92, 1.0],
+    [0.94, 1,   1]
   );
 
   return {

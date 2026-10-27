@@ -26,6 +26,11 @@ import {
   Compass,
   FileText,
   Check,
+  Database,
+  Settings,
+  Key,
+  ExternalLink,
+  X,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -38,11 +43,21 @@ import {
   Cell,
   Legend,
 } from 'recharts';
-import { getAdminData, isSupabaseConfigured, cleanMojibake, normalizePrice } from '../lib/supabase';
+import { 
+  getAdminData, 
+  checkIsSupabaseConfigured, 
+  getActiveSupabaseConfig, 
+  saveSupabaseCredentials, 
+  clearSupabaseCredentials, 
+  testSupabaseConnection, 
+  cleanMojibake, 
+  normalizePrice 
+} from '../lib/supabase';
 import { SurveySubmissionData, WaitlistSubmissionData, AnalyticsRecord, RespondentType } from '../types';
 
 interface AdminDashboardProps {
   onBack: () => void;
+  onLogout?: () => void;
 }
 
 
@@ -351,7 +366,7 @@ function LabBarChart({
   );
 }
 
-export default function AdminDashboard({ onBack }: AdminDashboardProps) {
+export default function AdminDashboard({ onBack, onLogout }: AdminDashboardProps) {
   const [isAuthenticated] = useState<boolean>(true);
 
   const [surveys, setSurveys] = useState<SurveySubmissionData[]>([]);
@@ -361,6 +376,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
   const [isFromSupabase, setIsFromSupabase] = useState<boolean>(false);
   const [supabaseError, setSupabaseError] = useState<string | null>(null);
   const [copiedSql, setCopiedSql] = useState<boolean>(false);
+  const isSupabaseConfigured = checkIsSupabaseConfigured();
 
   const [typeFilter, setTypeFilter] = useState<'all' | RespondentType>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -374,6 +390,24 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
 
   // Visual Labs state
   const [visuCohort, setVisuCohort] = useState<'all' | 'job_seeker' | 'recruiter'>('all');
+
+  // Supabase Configuration Modal state
+  const [showSupabaseModal, setShowSupabaseModal] = useState<boolean>(false);
+  const [configUrl, setConfigUrl] = useState<string>(() => getActiveSupabaseConfig().url || 'https://tkjbtersuebqrtzlrpga.supabase.co');
+  const [configKey, setConfigKey] = useState<string>(() => getActiveSupabaseConfig().key || '');
+  const [testResult, setTestResult] = useState<{ testing: boolean; success?: boolean; message?: string; count?: number } | null>(null);
+
+  const handleTestConnection = async () => {
+    setTestResult({ testing: true });
+    const res = await testSupabaseConnection(configUrl, configKey);
+    setTestResult({ testing: false, success: res.success, message: res.message, count: res.rowsCount });
+  };
+
+  const handleSaveConnection = async () => {
+    saveSupabaseCredentials(configUrl, configKey);
+    setShowSupabaseModal(false);
+    await fetchData();
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -400,6 +434,9 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
     setWaitlist([]);
     setAnalytics([]);
     setActiveTab('summary');
+    if (onLogout) {
+      onLogout();
+    }
   };
 
   // ── KPIs ─────────────────────────────────────────────────────────────────
@@ -719,6 +756,19 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowSupabaseModal(true)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-mono text-[11px] uppercase tracking-wider font-semibold transition ${
+                isFromSupabase
+                  ? 'border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+                  : isSupabaseConfigured
+                    ? 'border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100'
+                    : 'border-[#E4E2DA] bg-white text-[#1A1A19] hover:bg-[#F3F1EA]'
+              }`}
+            >
+              <Database className="w-3.5 h-3.5" />
+              <span>Supabase {isFromSupabase ? 'Live' : 'Setup'}</span>
+            </button>
             <button
               onClick={fetchData}
               disabled={loading}
@@ -1709,6 +1759,162 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
         )}
 
       </main>
+
+      {/* Supabase Connection Configuration Modal */}
+      {showSupabaseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-lg rounded-2xl bg-white border border-[#E4E2DA] shadow-2xl p-6 sm:p-7 space-y-6">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+                  <Database className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-sans text-lg font-bold text-[#1A1A19]">Supabase Connection Setup</h3>
+                  <p className="font-sans text-xs text-[#6B6A63]">Connect live database to sync survey responses & waitlist</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSupabaseModal(false)}
+                className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Current Status Pill */}
+            <div className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 ${
+              isFromSupabase
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                : isSupabaseConfigured
+                  ? 'bg-amber-50 border-amber-300 text-amber-900'
+                  : 'bg-neutral-50 border-neutral-200 text-neutral-700'
+            }`}>
+              <div className="flex items-center gap-2.5">
+                <span className={`w-2.5 h-2.5 rounded-full ${isFromSupabase ? 'bg-emerald-500 animate-pulse' : isSupabaseConfigured ? 'bg-amber-500' : 'bg-neutral-400'}`} />
+                <span className="font-mono text-xs font-semibold">
+                  Status: {isFromSupabase ? `Live Connected (${surveys.length} rows)` : isSupabaseConfigured ? 'Configured (0 rows · check RLS)' : 'Local Storage Mode'}
+                </span>
+              </div>
+              <a
+                href="https://supabase.com/dashboard/project/tkjbtersuebqrtzlrpga/settings/api"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-neutral-600 hover:text-black underline"
+              >
+                Supabase Dashboard <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+
+            {/* Inputs */}
+            <div className="space-y-4">
+              <div>
+                <label className="block font-mono text-[11px] uppercase tracking-wider font-semibold text-[#1A1A19] mb-1.5">
+                  Project URL
+                </label>
+                <input
+                  type="text"
+                  value={configUrl}
+                  onChange={(e) => setConfigUrl(e.target.value)}
+                  placeholder="https://xyz.supabase.co"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E4E2DA] font-mono text-xs text-[#1A1A19] bg-neutral-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#F9BE08]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-[11px] uppercase tracking-wider font-semibold text-[#1A1A19] mb-1.5">
+                  Anon Public Key
+                </label>
+                <input
+                  type="password"
+                  value={configKey}
+                  onChange={(e) => setConfigKey(e.target.value)}
+                  placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E4E2DA] font-mono text-xs text-[#1A1A19] bg-neutral-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#F9BE08]"
+                />
+                <p className="mt-1 text-[11px] text-[#8F8E87]">
+                  Found in Supabase: <strong>Project Settings &rarr; API &rarr; Project API keys &rarr; anon public</strong>
+                </p>
+              </div>
+            </div>
+
+            {/* Test Connection Feedback */}
+            {testResult && (
+              <div className={`p-3 rounded-xl border font-mono text-xs ${
+                testResult.testing
+                  ? 'bg-neutral-50 border-neutral-200 text-neutral-600'
+                  : testResult.success
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-red-50 border-red-200 text-red-700'
+              }`}>
+                {testResult.testing ? (
+                  <span className="flex items-center gap-2">
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Pinging Supabase project...
+                  </span>
+                ) : (
+                  <div>
+                    <p className="font-semibold">{testResult.message}</p>
+                    {testResult.success && typeof testResult.count === 'number' && (
+                      <p className="text-[11px] opacity-80 mt-0.5">Found {testResult.count} survey responses in database.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
+              <button
+                type="button"
+                onClick={handleTestConnection}
+                disabled={testResult?.testing}
+                className="px-4 py-2.5 rounded-xl border border-[#E4E2DA] bg-white font-mono text-xs font-semibold text-[#1A1A19] hover:bg-[#F3F1EA] transition disabled:opacity-50"
+              >
+                {testResult?.testing ? 'Testing...' : 'Test Connection'}
+              </button>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearSupabaseCredentials();
+                    setConfigKey('');
+                    setShowSupabaseModal(false);
+                    fetchData();
+                  }}
+                  className="px-3 py-2.5 rounded-xl text-neutral-500 font-mono text-xs hover:text-red-600 transition"
+                >
+                  Reset Local
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveConnection}
+                  className="px-5 py-2.5 rounded-xl bg-[#1A1A19] text-white font-mono text-xs font-semibold hover:bg-[#F9BE08] hover:text-[#1A1A19] transition shadow-sm"
+                >
+                  Save & Connect
+                </button>
+              </div>
+            </div>
+
+            {/* Quick RLS Help */}
+            <div className="pt-3 border-t border-neutral-200 flex items-center justify-between text-[11px] font-mono text-neutral-500">
+              <span>Rows hidden or 0 count?</span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    'ALTER TABLE public.survey_responses DISABLE ROW LEVEL SECURITY;\nALTER TABLE public.waitlist_signups DISABLE ROW LEVEL SECURITY;\nALTER TABLE public.analytics_events DISABLE ROW LEVEL SECURITY;\nGRANT ALL ON TABLE public.survey_responses TO anon, authenticated, service_role;\nGRANT ALL ON TABLE public.waitlist_signups TO anon, authenticated, service_role;\nGRANT ALL ON TABLE public.analytics_events TO anon, authenticated, service_role;\nNOTIFY pgrst, \'reload schema\';'
+                  );
+                  alert('Copied RLS disable script to clipboard! Run in Supabase SQL Editor.');
+                }}
+                className="text-amber-800 font-semibold underline hover:text-black"
+              >
+                Copy RLS Fix SQL
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

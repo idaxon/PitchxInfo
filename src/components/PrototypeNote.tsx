@@ -22,22 +22,25 @@ export default function PrototypeNote({ onFeedbackClick }: PrototypeNoteProps) {
     if (!slip) return;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.innerWidth < 640;
+    const finalRotate = isMobile ? 'rotate(-0.5deg)' : 'rotate(-1.5deg)';
 
     if (reduced) {
       slip.style.opacity = '1';
+      slip.style.transform = `translateY(0) ${finalRotate}`;
       return;
     }
 
     // Start: hidden, shifted up, over-rotated
     slip.style.opacity = '0';
-    slip.style.transform = 'translateY(-12px) rotate(-4deg)';
+    slip.style.transform = isMobile ? 'translateY(-8px) rotate(-1.5deg)' : 'translateY(-12px) rotate(-4deg)';
     slip.style.transition = 'none';
 
     const t = setTimeout(() => {
       slip.style.transition =
         'opacity 500ms cubic-bezier(.22,1,.36,1), transform 500ms cubic-bezier(.22,1,.36,1)';
       slip.style.opacity = '1';
-      slip.style.transform = 'translateY(0) rotate(-1.5deg)';
+      slip.style.transform = `translateY(0) ${finalRotate}`;
     }, 550); // after buttons appear
 
     return () => clearTimeout(t);
@@ -49,20 +52,22 @@ export default function PrototypeNote({ onFeedbackClick }: PrototypeNoteProps) {
       className="group relative max-w-[420px] w-full"
       style={{
         opacity: 0,
-        transform: 'translateY(-12px) rotate(-4deg)',
+        transform: 'translateY(-12px) rotate(-2deg)',
         willChange: 'opacity, transform',
         transformOrigin: 'top left',
       }}
       onMouseEnter={(e) => {
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (reduced) return;
-        (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px) rotate(-0.5deg)';
+        const isMobile = window.innerWidth < 640;
+        (e.currentTarget as HTMLElement).style.transform = isMobile ? 'translateY(-1px) rotate(0deg)' : 'translateY(-2px) rotate(-0.5deg)';
         (e.currentTarget as HTMLElement).style.boxShadow = '0 10px 28px rgba(26,26,25,0.13)';
       }}
       onMouseLeave={(e) => {
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (reduced) return;
-        (e.currentTarget as HTMLElement).style.transform = 'translateY(0) rotate(-1.5deg)';
+        const isMobile = window.innerWidth < 640;
+        (e.currentTarget as HTMLElement).style.transform = isMobile ? 'translateY(0) rotate(-0.5deg)' : 'translateY(0) rotate(-1.5deg)';
         (e.currentTarget as HTMLElement).style.boxShadow = '';
       }}
     >
@@ -71,28 +76,26 @@ export default function PrototypeNote({ onFeedbackClick }: PrototypeNoteProps) {
         style={{
           background: '#FFFDF6',
           border: '1px solid #E4E2DA',
-          borderRadius: '4px',
-          boxShadow: '0 4px 16px rgba(26,26,25,0.07), 0 1px 3px rgba(26,26,25,0.04)',
-          padding: '20px 20px 18px',
+          borderRadius: '6px',
+          boxShadow: '0 4px 14px rgba(26,26,25,0.06), 0 1px 3px rgba(26,26,25,0.03)',
+          padding: '11px 15px 10px',
           position: 'relative',
           overflow: 'hidden',
           transition: 'box-shadow 300ms cubic-bezier(.22,1,.36,1)',
         }}
       >
         {/* ── Yellow tape strip ─────────────────────────────────────────── */}
-        {/* Positioned top-left, rotated -8deg, slightly uneven via clip-path */}
         <div
           aria-hidden="true"
           style={{
             position: 'absolute',
-            top: '-6px',
-            left: '14px',
-            width: '56px',
-            height: '20px',
-            background: 'rgba(249,190,8,0.55)',
-            transform: 'rotate(-8deg)',
+            top: '-5px',
+            left: '12px',
+            width: '46px',
+            height: '16px',
+            background: 'rgba(249,190,8,0.65)',
+            transform: 'rotate(-7deg)',
             transformOrigin: 'center center',
-            // Uneven edges via clip-path: very slight taper on each side
             clipPath: 'polygon(1px 1px, calc(100% - 2px) 0px, 100% 100%, 0px calc(100% - 1px))',
             zIndex: 10,
           }}
@@ -105,12 +108,12 @@ export default function PrototypeNote({ onFeedbackClick }: PrototypeNoteProps) {
           <p
             style={{
               fontFamily: "'Fraunces', serif",
-              fontSize: '17px',
+              fontSize: '14.5px',
               fontWeight: 600,
               color: '#1A1A19',
-              lineHeight: 1.3,
-              marginBottom: '8px',
-              marginTop: '8px', // clears tape
+              lineHeight: 1.25,
+              marginBottom: '3px',
+              marginTop: '4px',
             }}
           >
             Heads up: this is a prototype.
@@ -120,10 +123,10 @@ export default function PrototypeNote({ onFeedbackClick }: PrototypeNoteProps) {
           <p
             style={{
               fontFamily: "'Geist', sans-serif",
-              fontSize: '14px',
+              fontSize: '12.5px',
               color: '#4A4A47',
-              lineHeight: 1.65,
-              marginBottom: '12px',
+              lineHeight: 1.45,
+              marginBottom: '7px',
             }}
           >
             PitchX launches soon. It's built for you, so help us shape it.
@@ -131,7 +134,7 @@ export default function PrototypeNote({ onFeedbackClick }: PrototypeNoteProps) {
           </p>
 
           {/* Link + sign-off row */}
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
             <button
               onClick={onFeedbackClick}
               className="feedback-link group/link"
@@ -141,7 +144,7 @@ export default function PrototypeNote({ onFeedbackClick }: PrototypeNoteProps) {
                 padding: 0,
                 cursor: 'pointer',
                 fontFamily: "'Geist', sans-serif",
-                fontSize: '14px',
+                fontSize: '12.5px',
                 fontWeight: 600,
                 color: '#1A1A19',
                 textDecoration: 'none',
@@ -151,17 +154,7 @@ export default function PrototypeNote({ onFeedbackClick }: PrototypeNoteProps) {
                 outline: 'none',
                 position: 'relative',
               }}
-              // Keyboard focus ring: yellow outer + black inner
-              onFocus={(e) => {
-                (e.currentTarget as HTMLElement).style.outline = '2px solid #F9BE08';
-                (e.currentTarget as HTMLElement).style.outlineOffset = '3px';
-                (e.currentTarget as HTMLElement).style.borderRadius = '2px';
-              }}
-              onBlur={(e) => {
-                (e.currentTarget as HTMLElement).style.outline = 'none';
-              }}
             >
-              {/* Yellow underline via pseudo-element (done in CSS below) */}
               <span className="note-link-text">Share your feedback</span>
               <span
                 className="note-arrow"
@@ -179,7 +172,7 @@ export default function PrototypeNote({ onFeedbackClick }: PrototypeNoteProps) {
               style={{
                 fontFamily: "'Fraunces', serif",
                 fontStyle: 'italic',
-                fontSize: '13px',
+                fontSize: '12px',
                 color: '#9E9D95',
                 flexShrink: 0,
               }}
